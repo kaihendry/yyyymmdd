@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/rjeczalik/notify"
@@ -29,7 +30,7 @@ func main() {
 
 	for {
 		switch ei := <-n; ei.Event() {
-		case notify.Create:
+		case notify.Create, notify.Rename:
 			log.Println(ei)
 			from := ei.Path()
 
@@ -37,7 +38,17 @@ func main() {
 			yyyymmdd := path.Join(dldir, t.Format("2006-01-02"))
 
 			if path.Base(from) == yyyymmdd {
-				// Ignore YYYY-MM-DD files
+				log.Println("ignoring files already with", yyyymmdd)
+				continue
+			}
+
+			if strings.HasPrefix(path.Base(from), ".com.google.Chrome") {
+				log.Println("ignoring .com.google.Chrome file", from)
+				continue
+			}
+
+			if strings.HasSuffix(path.Base(from), ".crdownload") {
+				log.Println("ignoring *.crdownload file", from)
 				continue
 			}
 
@@ -49,7 +60,7 @@ func main() {
 			log.Println("Symlinking", from, "to", to)
 
 			if err := os.Symlink(from, to); err != nil {
-				log.Fatal(err)
+				log.Println(err)
 			}
 
 		default:
