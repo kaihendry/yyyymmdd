@@ -2,7 +2,7 @@
 Description=Download manager
 
 [Service]
-ExecStart=/home/hendry/go/bin/yyyymmdd
+ExecStart=%h/go/bin/yyyymmdd
 
 [Install]
 WantedBy=default.target
