@@ -1,0 +1,8 @@
+[Unit]
+Description=Download manager
+
+[Service]
+ExecStart=/home/hendry/dl/manage.sh
+
+[Install]
+WantedBy=default.target
