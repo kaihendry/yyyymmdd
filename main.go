@@ -46,9 +46,9 @@ func main() {
 			}
 
 			to := path.Join(yyyymmdd, path.Base(from))
-			log.Println("Moving", from, "to", to)
+			log.Println("Symlinking", from, "to", to)
 
-			if err := os.Rename(from, to); err != nil {
+			if err := os.Symlink(from, to); err != nil {
 				log.Fatal(err)
 			}
 
