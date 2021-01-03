@@ -6,7 +6,7 @@
 		<key>Label</key>
 		<string>yyyymmdd.dabase.com</string>
 		<key>Program</key>
-		<string>/Users/kaihendry/tmp/yyyymmdd/yyyymmdd</string>
+		<string>~/go/bin/yyyymmdd</string>
 		<key>RunAtLoad</key>
 		<true/>
 	</dict>
