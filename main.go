@@ -1,16 +1,25 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/rjeczalik/notify"
 )
 
+var Version string
+
 func main() {
+	bin, err := filepath.Abs(os.Args[0])
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Starting", bin, Version)
 
 	home, err := os.UserHomeDir()
 	if err != nil {
