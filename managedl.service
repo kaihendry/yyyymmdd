@@ -1,8 +1,0 @@
-[Unit]
-Description=Download manager
-
-[Service]
-ExecStart=%h/go/bin/yyyymmdd
-
-[Install]
-WantedBy=default.target
