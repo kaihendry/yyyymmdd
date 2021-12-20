@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -9,13 +8,12 @@ import (
 )
 
 func main() {
-	flag.Parse()
-
-	if flag.NArg() == 0 {
+	if len(os.Args) != 2 {
 		log.Fatal("No directory specified")
 	}
 
-	dir := flag.Arg(0)
+	dir := os.Args[1]
+	log.Printf("Organising %s", dir)
 	files, err := os.ReadDir(dir)
 	if err != nil {
 		log.Fatal(err)
