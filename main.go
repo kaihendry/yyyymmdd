@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func main() {
@@ -49,8 +50,7 @@ func main() {
 		fmt.Printf("Move %s to %s? (y/n) ", fullPath, newFullPath)
 		var answer string
 		fmt.Scanln(&answer)
-		if answer == "y" {
-
+		if strings.ToLower(strings.TrimSpace(answer)) == "y" {
 			err = os.MkdirAll(newPath, 0755)
 			if err != nil {
 				log.Fatal(err)
