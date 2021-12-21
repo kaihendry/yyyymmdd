@@ -30,6 +30,12 @@ func main() {
 			log.Fatal(err)
 		}
 
+		// ignore files starting with .
+		if strings.HasPrefix(file.Name(), ".") {
+			log.Printf("Ignoring dot file %s", fullPath)
+			continue
+		}
+
 		containingFolder := filepath.Base(filepath.Dir(fullPath))
 
 		fileInfo, err := file.Info()
