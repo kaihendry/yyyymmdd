@@ -8,9 +8,14 @@ import (
 	"strings"
 )
 
+const version = "0.0.1"
+
 func main() {
+
+	fmt.Printf("%s, version %s\n", filepath.Base(os.Args[0]), version)
+
 	if len(os.Args) != 2 {
-		log.Fatal("No directory specified")
+		log.Fatalf("No directory specified")
 	}
 
 	dir := os.Args[1]
