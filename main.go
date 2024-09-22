@@ -65,7 +65,10 @@ func main() {
 		// prompt user to move file
 		fmt.Printf("Move %s to %s? (y/n) ", fullPath, newFullPath)
 		var answer string
-		fmt.Scanln(&answer)
+		_, err = fmt.Scanln(&answer)
+		if err != nil {
+			log.Fatal(err)
+		}
 		if strings.ToLower(strings.TrimSpace(answer)) == "y" {
 			err = os.MkdirAll(newPath, 0755)
 			if err != nil {
