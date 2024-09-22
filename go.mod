@@ -1,3 +1,3 @@
 module github.com/kaihendry/yyyymmdd
 
-go 1.18
+go 1.23

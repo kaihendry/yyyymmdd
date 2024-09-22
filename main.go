@@ -5,12 +5,17 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 	"strings"
 )
 
-const version = "0.0.1"
-
 func main() {
+
+	buildInfo, ok := debug.ReadBuildInfo()
+	if !ok {
+		log.Fatalf("debug.ReadBuildInfo() failed")
+	}
+	version := buildInfo.Main.Version
 
 	fmt.Printf("%s, version %s\n", filepath.Base(os.Args[0]), version)
 
