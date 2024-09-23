@@ -9,8 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
+      - uses: golangci/golangci-lint-action@v6
         with:
           version: latest
 
@@ -19,5 +18,5 @@ jobs:
     steps:
       - uses: golang/govulncheck-action@v1
         with:
-          go-version-input: go.mod
+          go-version-input: '~1.23.0'
           check-latest: true
