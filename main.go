@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -9,26 +10,67 @@ import (
 	"strings"
 )
 
+var version string
+
+// printUsage prints the help message for the program.
+func printUsage() {
+	fmt.Printf("Usage: %s [OPTIONS] <directory>\n", filepath.Base(os.Args[0]))
+	fmt.Println("Options:")
+	fmt.Println("  -h, --help            Show this help message")
+	fmt.Println("  -v, --version         Show the version information")
+	fmt.Println("  -d, --dry-run         Simulate moving files without making changes")
+	fmt.Println("  -y, --skip-confirmation Skip confirmation when moving files")
+}
+
 func main() {
+	help := flag.Bool("help", false, "Show help message")
+	versionFlag := flag.Bool("version", false, "Show version")
+	dryRun := flag.Bool("dry-run", false, "Simulate moving files without making changes")
+	skipConfirmation := flag.Bool("skip-confirmation", false, "Skip confirmation when moving files")
+
+	flag.BoolVar(help, "h", false, "Show help message")
+	flag.BoolVar(versionFlag, "v", false, "Show version")
+	flag.BoolVar(dryRun, "d", false, "Simulate moving files without making changes")
+	flag.BoolVar(skipConfirmation, "y", false, "Skip confirmation when moving files")
+
+	flag.Parse()
+
+	// Handle --help and --version flags before doing anything else
+	if *help {
+		printUsage()
+		return
+	}
 
 	buildInfo, ok := debug.ReadBuildInfo()
 	if !ok {
 		log.Fatalf("debug.ReadBuildInfo() failed")
 	}
-	version := buildInfo.Main.Version
+	version = buildInfo.Main.Version
 
-	fmt.Printf("%s, version %s\n", filepath.Base(os.Args[0]), version)
-
-	if len(os.Args) != 2 {
-		log.Fatalf("No directory specified")
+	if *versionFlag {
+		fmt.Printf("%s, version %s\n", filepath.Base(os.Args[0]), version)
+		return
 	}
 
-	dir := os.Args[1]
-	log.Printf("Organising %s", dir)
+	// Ensure a directory is passed
+	if len(flag.Args()) != 1 {
+		log.Fatalf("Error: No directory specified\n\n")
+		printUsage()
+		return
+	}
+
+	dir := flag.Arg(0)
+
+	// Check if the directory exists
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		log.Fatalf("The directory %s does not exist.\n", dir)
+	}
+
 	files, err := os.ReadDir(dir)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error reading directory: %v\n", err)
 	}
+	fmt.Printf("Found %d files in the directory.\n", len(files))
 
 	for _, file := range files {
 		if file.IsDir() {
@@ -37,48 +79,54 @@ func main() {
 
 		fullPath, err := filepath.Abs(filepath.Join(dir, file.Name()))
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("Error getting absolute path for %s: %v\n", file.Name(), err)
 		}
 
-		// ignore files starting with .
+		// Ignore files starting with .
 		if strings.HasPrefix(file.Name(), ".") {
-			log.Printf("Ignoring dot file %s", fullPath)
 			continue
 		}
 
 		containingFolder := filepath.Base(filepath.Dir(fullPath))
-
 		fileInfo, err := file.Info()
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("Error getting info for %s: %v\n", fullPath, err)
 		}
 
 		yyyymmdd := fileInfo.ModTime().Format("2006-01-02")
 		if yyyymmdd != containingFolder {
-			log.Printf("%s is not in the right folder: %s", fullPath, yyyymmdd)
-		}
+			newPath := filepath.Join(dir, yyyymmdd)
+			newFullPath := filepath.Join(newPath, file.Name())
 
-		// new path in "yyyy-mm-dd" folder
-		newPath := filepath.Join(dir, yyyymmdd)
-		newFullPath := filepath.Join(newPath, file.Name())
-
-		// prompt user to move file
-		fmt.Printf("Move %s to %s? (y/n) ", fullPath, newFullPath)
-		var answer string
-		_, err = fmt.Scanln(&answer)
-		if err != nil {
-			log.Fatal(err)
-		}
-		if strings.ToLower(strings.TrimSpace(answer)) == "y" {
-			err = os.MkdirAll(newPath, 0755)
-			if err != nil {
-				log.Fatal(err)
+			if _, err := os.Stat(newPath); os.IsNotExist(err) {
+				err := os.MkdirAll(newPath, 0755)
+				if err != nil {
+					log.Fatalf("Error creating directory %s: %v\n", newPath, err)
+				}
 			}
 
-			err = os.Rename(fullPath, newFullPath)
-			if err != nil {
-				log.Fatal(err)
+			if *skipConfirmation || promptUser(fullPath, newFullPath) {
+				if *dryRun {
+					fmt.Printf("[DRY RUN] Would move %s to %s\n", fullPath, newFullPath)
+				} else {
+					err := os.Rename(fullPath, newFullPath)
+					if err != nil {
+						log.Fatalf("Error moving %s to %s: %v\n", fullPath, newFullPath, err)
+					}
+					fmt.Printf("Moved %s to %s\n", fullPath, newFullPath)
+				}
 			}
 		}
 	}
+}
+
+// promptUser prompts the user for confirmation to move the file.
+func promptUser(fullPath, newFullPath string) bool {
+	fmt.Printf("Move %s to %s? (y/n) ", fullPath, newFullPath)
+	var answer string
+	_, err := fmt.Scanln(&answer)
+	if err != nil {
+		log.Fatalf("Error reading user input: %v\n", err)
+	}
+	return strings.ToLower(strings.TrimSpace(answer)) == "y"
 }
