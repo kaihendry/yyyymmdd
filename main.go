@@ -12,16 +12,6 @@ import (
 
 var version string
 
-// printUsage prints the help message for the program.
-func printUsage() {
-	fmt.Printf("Usage: %s [OPTIONS] <directory>\n", filepath.Base(os.Args[0]))
-	fmt.Println("Options:")
-	fmt.Println("  -h, --help            Show this help message")
-	fmt.Println("  -v, --version         Show the version information")
-	fmt.Println("  -d, --dry-run         Simulate moving files without making changes")
-	fmt.Println("  -y, --skip-confirmation Skip confirmation when moving files")
-}
-
 func main() {
 	help := flag.Bool("help", false, "Show help message")
 	versionFlag := flag.Bool("version", false, "Show version")
@@ -37,7 +27,7 @@ func main() {
 
 	// Handle --help and --version flags before doing anything else
 	if *help {
-		printUsage()
+		flag.PrintDefaults()
 		return
 	}
 
@@ -55,7 +45,7 @@ func main() {
 	// Ensure a directory is passed
 	if len(flag.Args()) != 1 {
 		log.Fatalf("Error: No directory specified\n\n")
-		printUsage()
+		flag.PrintDefaults()
 		return
 	}
 
