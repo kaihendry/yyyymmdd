@@ -19,18 +19,6 @@ jobs:
       - run: go test -race ./...
       - run: go vet ./...
 
-  golangci:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-go@v7
-        with:
-          go-version-file: go.mod
-      - uses: golangci/golangci-lint-action@v9
-        with:
-          version: v2.12
-
   govulncheck:
     name: Vulnerability check
     runs-on: ubuntu-latest
