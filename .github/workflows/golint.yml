@@ -1,22 +1,40 @@
-name: Go linters
+name: Go CI
 
 on:
   push:
+  pull_request:
+
+permissions:
+  contents: read
 
 jobs:
-  golangci:
+  test:
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - run: go test -race ./...
+      - run: go vet ./...
+
+  golangci:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
       - uses: golangci/golangci-lint-action@v9
         with:
-          version: latest
+          version: v2.12
 
   govulncheck:
+    name: Vulnerability check
     runs-on: ubuntu-latest
     steps:
       - uses: golang/govulncheck-action@v1
         with:
-          go-version-input: '~1.23.0'
-          check-latest: true
+          go-version-file: go.mod

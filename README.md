@@ -1,10 +1,43 @@
-Trying to organise my downloads into YYYY-MM-DD folders since my browsers don't
+# yyyymmdd
 
-	go install github.com/kaihendry/yyyymmdd/...@latest
-	yes | $(go env GOPATH)/bin/yyyymmdd ~/Downloads
+Keep Downloads calm: loose files are placed into folders named after their modification date.
 
-```bash
-yyyymmdd --help
+```text
+Downloads/
+├── 2026-08-25/
+│   └── receipt.pdf
+└── 2026-08-26/
+    └── photo.jpg
 ```
 
-[![Organise Downloads](http://img.youtube.com/vi/CYgu-N2xkwI/0.jpg)](http://www.youtube.com/watch?v=CYgu-N2xkwI "How to organise ~/Downloads")
+## Install
+
+```bash
+go install github.com/kaihendry/yyyymmdd@latest
+```
+
+## Use
+
+Preview the changes first (the default directory is `~/Downloads`):
+
+```bash
+yyyymmdd --dry-run
+```
+
+Then organise, with confirmation for each file:
+
+```bash
+yyyymmdd
+```
+
+Or organise everything without prompts, while leaving very recent downloads alone:
+
+```bash
+yyyymmdd --yes --older-than 10m
+```
+
+You can pass another directory as the final argument. Existing destination files are never overwritten, hidden files and subdirectories are ignored, and a dry run never changes the filesystem.
+
+Run `yyyymmdd --help` for all options.
+
+[Watch the original demo](http://www.youtube.com/watch?v=CYgu-N2xkwI).
